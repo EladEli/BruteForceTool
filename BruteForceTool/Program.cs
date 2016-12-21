@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CommandLine;
+using static System.String;
 
 namespace BruteForceTool
 {
@@ -39,7 +40,7 @@ namespace BruteForceTool
                 var domain = options.Domain.Split('.').First();
                 var authTypeInput = options.AuthTypeInput;
                 AuthType authType;
-                if (!Enum.TryParse(authTypeInput, out authType))
+                if (!Enum.TryParse(FirstCharToUpper(authTypeInput), out authType))
                 {
                     authType = AuthType.Kerberos;
                 }
@@ -85,6 +86,12 @@ namespace BruteForceTool
                 }
                 return true;
             }
+        }
+        public static string FirstCharToUpper(string input)
+        {
+            if (IsNullOrEmpty(input))
+                throw new ArgumentException("Empty String input");
+            return input.First().ToString().ToUpper() + input.Substring(1);
         }
     }
 }
