@@ -30,43 +30,47 @@ namespace BruteForceTool
         private static void Main(string[] args)
         {
             var options = new Options();
-            var isValid = Parser.Default.ParseArgumentsStrict(args, options);
-            if (isValid)
-            {
-                var usersDictionary = File.ReadAllText(options.UsersListPath)
-                    .Split(new[] {"\r\n"}, StringSplitOptions.None).Select(_ => _.Trim());
-                var passwordDictionary = File.ReadAllText(options.PasswordListPath)
-                    .Split(new[] {"\r\n"}, StringSplitOptions.None);
-                var domain = options.Domain.Split('.').First();
-                var authTypeInput = options.AuthTypeInput;
-                AuthType authType;
-                if (!Enum.TryParse(FirstCharToUpper(authTypeInput), out authType))
-                {
-                    authType = AuthType.Kerberos;
-                }
-                try
-                {
-                    Parallel.ForEach(usersDictionary, (user) =>
-                    {
-                        Parallel.ForEach(passwordDictionary, (pass) =>
-                        {
-                            if (ValidateCredentials(user, pass, domain, authType))
-                            {
-                                Console.WriteLine($"Found valid credentials for: {user}");
-                            }
-                        });
-                    });
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Brute force failed");
-                }
-            }
-            else
+            var isCommanLineValid = Parser.Default.ParseArgumentsStrict(args, options);
+            if (!isCommanLineValid)
             {
                 Console.WriteLine("Command line arguments are inValid");
+                return;
+            }
+            var usersDictionary = File.ReadAllText(options.UsersListPath)
+                .Split(new[] {"\r\n"}, StringSplitOptions.None).Select(_ => _.Trim());
+            var passwordDictionary = File.ReadAllText(options.PasswordListPath)
+                .Split(new[] {"\r\n"}, StringSplitOptions.None);
+            var domain = options.Domain.Split('.').First();
+            var authType = GetAuthType(options.AuthTypeInput);
+            try
+            {
+                Parallel.ForEach(usersDictionary, (user) =>
+                {
+                    Parallel.ForEach(passwordDictionary, (pass) =>
+                    {
+                        if (ValidateCredentials(user, pass, domain, authType))
+                        {
+                            Console.WriteLine($"Found valid credentials for: {user}, Password: {pass}");
+                        }
+                    });
+                });
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Brute force failed");
             }
         }
+
+        private static AuthType GetAuthType(string authTypeInput)
+        {
+            AuthType authType;
+            if (!Enum.TryParse(FirstCharToUpper(authTypeInput.ToLower()), out authType))
+            {
+                authType = AuthType.Kerberos;
+            }
+            return authType;
+        }
+
         private static bool ValidateCredentials(string username, string password,string domain, AuthType authType)
         {
             var credentials
