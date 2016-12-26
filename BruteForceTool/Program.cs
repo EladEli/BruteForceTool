@@ -9,22 +9,6 @@ using static System.String;
 
 namespace BruteForceTool
 {
-    internal class Options
-    {
-        [Option('u', "users", Required = true,
-          HelpText = "Specify users dictionary's path.")]
-        public string UsersListPath { get; set; }
-        [Option('p', "pass", Required = true,
-          HelpText = "Specify passwords dictionary's path.")]
-        public string PasswordListPath { get; set; }
-        [Option('d', "domain", Required = true,
-          HelpText = "Specify the domain name")]
-        public string Domain { get; set; }
-        [Option('a', "authentication", Required = true,
-          HelpText = "Specify the authentication protocol")]
-        public string AuthTypeInput { get; set; }
-    }
-
     internal class Program
     {
         private static void Main(string[] args)
@@ -60,7 +44,27 @@ namespace BruteForceTool
                 Console.WriteLine("Brute force failed");
             }
         }
-
+        internal class Options
+        {
+            [Option('u', "users", Required = true,
+              HelpText = "Specify users dictionary's path.")]
+            public string UsersListPath { get; set; }
+            [Option('p', "pass", Required = true,
+              HelpText = "Specify passwords dictionary's path.")]
+            public string PasswordListPath { get; set; }
+            [Option('d', "domain", Required = true,
+              HelpText = "Specify the domain name")]
+            public string Domain { get; set; }
+            [Option('a', "authentication", Required = true,
+              HelpText = "Specify the authentication protocol")]
+            public string AuthTypeInput { get; set; }
+        }
+        public static string FirstCharToUpper(string input)
+        {
+            if (IsNullOrEmpty(input))
+                throw new ArgumentException("Empty String input");
+            return input.First().ToString().ToUpper() + input.Substring(1);
+        }
         private static AuthType GetAuthType(string authTypeInput)
         {
             AuthType authType;
@@ -70,7 +74,6 @@ namespace BruteForceTool
             }
             return authType;
         }
-
         private static bool ValidateCredentials(string username, string password,string domain, AuthType authType)
         {
             var credentials
@@ -90,12 +93,6 @@ namespace BruteForceTool
                 }
                 return true;
             }
-        }
-        public static string FirstCharToUpper(string input)
-        {
-            if (IsNullOrEmpty(input))
-                throw new ArgumentException("Empty String input");
-            return input.First().ToString().ToUpper() + input.Substring(1);
         }
     }
 }
