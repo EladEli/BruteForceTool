@@ -20,14 +20,14 @@ namespace BruteForceTool
                 Console.WriteLine("Command line arguments are inValid");
                 return;
             }
-            var usersDictionary = File.ReadAllText(options.UsersListPath)
-                .Split(new[] {"\r\n"}, StringSplitOptions.None).Select(_ => _.Trim());
-            var passwordDictionary = File.ReadAllText(options.PasswordListPath)
-                .Split(new[] {"\r\n"}, StringSplitOptions.None);
             var domain = options.Domain.Split('.').First();
             var authType = GetAuthType(options.AuthTypeInput);
             try
             {
+                var usersDictionary = File.ReadAllText(options.UsersListPath)
+                .Split(new[] { "\r\n" }, StringSplitOptions.None).Select(_ => _.Trim());
+                var passwordDictionary = File.ReadAllText(options.PasswordListPath)
+                    .Split(new[] { "\r\n" }, StringSplitOptions.None);
                 Parallel.ForEach(usersDictionary, (user) =>
                 {
                     Parallel.ForEach(passwordDictionary, (pass) =>
