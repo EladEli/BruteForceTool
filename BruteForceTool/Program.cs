@@ -17,7 +17,7 @@ namespace BruteForceTool
             var isCommanLineValid = Parser.Default.ParseArgumentsStrict(args, options);
             if (!isCommanLineValid)
             {
-                Console.WriteLine("Command line arguments are inValid");
+                Console.WriteLine("Command line arguments are invalid");
                 return;
             }
             var domain = options.Domain.Split('.').First();
