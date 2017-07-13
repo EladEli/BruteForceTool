@@ -34,13 +34,13 @@ namespace BruteForceTool
                     .Split(new[] {"\r\n"}, StringSplitOptions.None);
                 Parallel.ForEach(usersDictionary, (user) =>
                 {
-                    Parallel.ForEach(passwordDictionary, (pass) =>
+                    foreach (var pass in passwordDictionary)
                     {
                         if (ValidateCredentials(user, pass, domain, authType, destinationDc))
                         {
                             Console.WriteLine($"Found valid credentials for: {user}, Password: {pass}");
                         }
-                    });
+                    }
                     attemptsCounter++;
                     if(attemptsCounter % 5 == 0)
                         Console.WriteLine($"Attempted {attemptsCounter} accounts...");
