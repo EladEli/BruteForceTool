@@ -14,12 +14,12 @@ namespace BruteForceTool
         private static void Main(string[] args)
         {
             var agrsOptions = new Options();
-            var isCommanLineValid = Parser.Default.ParseArgumentsStrict(args, agrsOptions);
-            if (!isCommanLineValid)
+            if (!Parser.Default.ParseArgumentsStrict(args, agrsOptions))
             {
                 Console.WriteLine("Command line arguments are invalid");
                 return;
             }
+
             var authType = GetAuthType(agrsOptions.AuthTypeInput);
             var attemptsCounter = 0;
             var destinationDc = agrsOptions.DestinationDc;
@@ -65,6 +65,9 @@ namespace BruteForceTool
             [Option('p', "pass", Required = true,
               HelpText = "Specify passwords dictionary's path.")]
             public string PasswordListPath { get; set; }
+            [Option('i', "death", Required = false,
+                HelpText = "Specify passwords dictionary's path.")]
+            public bool IsAccountEnumeration { get; set; }
         }
         private static string FirstCharToUpper(string input)
         {
@@ -81,7 +84,7 @@ namespace BruteForceTool
             }
             return authType;
         }
-        private static bool ValidateCredentials(string username, string password,string domain, AuthType authType, string destinationDc)
+        private static bool ValidateCredentials(string username, string password, string domain, AuthType authType, string destinationDc)
         {
             var credentials
                 = new NetworkCredential(username, password, domain);
