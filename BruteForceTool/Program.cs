@@ -51,24 +51,6 @@ namespace BruteForceTool
                 Console.WriteLine("Brute force failed");
             }
         }
-        internal class Options
-        {
-            [Option('a', "authentication", Required = true,
-              HelpText = "Specify the authentication protocol")]
-            public string AuthTypeInput { get; set; }
-            [Option('d', "destination", Required = true,
-              HelpText = "Specify the destination domain controller")]
-            public string DestinationDc { get; set; }
-            [Option('u', "users", Required = true,
-              HelpText = "Specify users dictionary's path.")]
-            public string UsersListPath { get; set; }
-            [Option('p', "pass", Required = true,
-              HelpText = "Specify passwords dictionary's path.")]
-            public string PasswordListPath { get; set; }
-            [Option('i', "death", Required = false,
-                HelpText = "Specify passwords dictionary's path.")]
-            public bool IsAccountEnumeration { get; set; }
-        }
         private static string FirstCharToUpper(string input)
         {
             if (IsNullOrEmpty(input))
@@ -105,6 +87,21 @@ namespace BruteForceTool
                 }
                 return true;
             }
+        }
+        internal class Options
+        {
+            [Option('a', "authentication", Required = true,
+                HelpText = "Specify the authentication protocol")]
+            public string AuthTypeInput { get; set; }
+            [Option('d', "destination", Required = true,
+                HelpText = "Specify the destination domain controller")]
+            public string DestinationDc { get; set; }
+            [Option('u', "users", Required = true,
+                HelpText = "Specify users dictionary's path.")]
+            public string UsersListPath { get; set; }
+            [Option('p', "pass", Required = true,
+                HelpText = "Specify passwords dictionary's path.")]
+            public string PasswordListPath { get; set; }
         }
     }
 }
